@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:biproject/algorithms/models/cell.dart';
-import 'package:biproject/algorithms/models/result.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
 
 

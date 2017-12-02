@@ -52,7 +52,7 @@ class LocalAlignment extends SeqAlignment{
 
   @override
   void traceback() {
-    int row = numRows - 1, col =  numCols - 1;
+//    int row = numRows - 1, col =  numCols - 1;
 
     ListQueue<Cell> tracebackStack = new ListQueue<Cell>();
 
