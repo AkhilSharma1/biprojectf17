@@ -1,4 +1,3 @@
-
 import 'package:biproject/algorithms/global_alignment.dart';
 import 'package:biproject/algorithms/matrix.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
@@ -9,8 +8,6 @@ void main() {
   runApp(new MyApp());
 }
 
-
-typedef void nextClickedCallback();
 
 class ScoreSection extends StatelessWidget {
   final int leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd;
@@ -66,29 +63,32 @@ class MatrixSection extends StatefulWidget {
 
   SeqAlignment seqAlignmentAlgorithm;
 
-  MatrixSection(this.seqAlignmentAlgorithm,  this.querySeq, this.dbSeq);
+  MatrixSection(this.seqAlignmentAlgorithm, this.querySeq, this.dbSeq);
 
   @override
-  _MatrixState createState() => new _MatrixState( querySeq,  dbSeq, seqAlignmentAlgorithm);
+  _MatrixState createState() =>
+      new _MatrixState(querySeq, dbSeq, seqAlignmentAlgorithm);
 }
 
 class _MatrixState extends State<MatrixSection> {
-  int numRows, numCols, cRow, cCol;
-  List<List<String>> matrixValues = new List<List<String>>();
+  int numRows, numCols, cRow = 2, cCol = 2;
+  List<List<String>> matrixValues;
   Matrix solutionMatrix;
 
-  _MatrixState(String querySeq, String dbSeq, SeqAlignment seqAlignmentAlgorithm){
-    seqAlignmentAlgorithm.solve();
-    solutionMatrix = seqAlignmentAlgorithm.matrix;
-
+  _MatrixState(
+      String querySeq, String dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
+    matrixValues = new List<List<String>>(numRows);
+    for (int row = 0; row < numRows; row++) {
+      matrixValues[row] = new List<String>(numCols);
+    }
 
-    initializeMatrixValues();
+    seqAlignmentAlgorithm.solve();
+    solutionMatrix = seqAlignmentAlgorithm.matrix;
   }
 
-
-  Widget buildDisabledText([String text ='']) {
+  Widget buildDisabledText([String text = '-']) {
     return buildText(text);
   }
 
@@ -116,95 +116,109 @@ class _MatrixState extends State<MatrixSection> {
 
   @override
   Widget build(BuildContext context) {
+    initializeMatrixValues();
+
     //create alphabet row
     return new Expanded(
         child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: buildRows(),
-        )
-    );
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: buildMatrixSectionViews()));
   }
 
   List<Widget> buildRows() {
+//    Row alphabetRow = buildAlphabetRow();
+//    Row firstRow = buildFirstRow();
 
-    Row alphabetRow = buildAlphabetRow();
-    Row firstRow = buildFirstRow();
+    List<Row> mRows = new List();
+//    mRows.add(alphabetRow);
+//    mRows.add(firstRow);
 
-
-    List<Row> mRows= new List();
-    mRows.add(alphabetRow);
-    mRows.add(firstRow);
-
-/*
-
-    for( int row = 0;row<numRows; row++){
-      List<Text>  texts = new List(numCols);
-      for( int col = 0;col<numCols; col++){
-        texts.add(buildDisabledText());
-      }
+    for( int row = 0;row<numRows; row++) {
+      mRows.add(buildRow(row));
     }
-*/
 
     return mRows;
   }
 
-
   void initializeMatrixValues() {
-
-    //first row
+    //first row (db letters)
     matrixValues[0][0] = '-';
     matrixValues[0][1] = '-';
-    for( int col = 2;col<numCols; col++){
-      matrixValues[0][col] = widget.dbSeq[col-2];
+    for (int col = 2; col < numCols; col++) {
+      matrixValues[0][col] = widget.dbSeq[col - 2];
     }
 
-    //first column
+    //first column(query letters)
     matrixValues[1][0] = '-';
-    for(int row = 2; row<numRows; row++){
-      matrixValues[row][0] = widget.querySeq[row-2];
-
+    for (int row = 2; row < numRows; row++) {
+      matrixValues[row][0] = widget.querySeq[row - 2];
     }
-
     //gap penalty row (2nd row)
-    for( int col = 2;col<numCols; col++){
-      matrixValues[0][col] = solutionMatrix.getScore(0, col-1).toString();
+    for (int col = 1; col < numCols; col++) {
+      matrixValues[1][col] = solutionMatrix.getScore(0, col-1).toString();
     }
 
     //gap penalty column(2nd column)
-    for( int row = 2;row<numRows; row++) {
-      matrixValues[row][0] = solutionMatrix.getScore(row - 1, 0).toString();
+    for (int row = 1; row < numRows; row++) {
+      matrixValues[row][1] = solutionMatrix.getScore(row - 1, 0).toString();
     }
 
+    for (int row = 2; row < numRows; row++){
+      for(int col = 2; col<numCols;col++){
+        matrixValues[row][col] = getDisplayScore(row, col);
+      }
+
     }
-
-
-  Row buildAlphabetRow() {
-    List<Text>  texts = new List();
-
-    texts.add(buildDisabledText('-'));
-    texts.add(buildDisabledText('-'));
-
-    for( int col = 2;col<numCols; col++){
-      texts.add(buildDisabledText(widget.dbSeq[col - 2]));
-    }
-    return new Row(children: texts);
   }
 
-  Row buildFirstRow() {
-    List<Text>  texts = new List();
-    texts.add(buildDisabledText('-'));
 
-    for( int col = 1;col<numCols; col++){
-      texts.add(buildDisabledText());
+  Row buildRow(int row){
+    List<Text> texts = new List();
+    for (int col = 0; col < numCols; col++) {
+      texts.add(buildDisabledText(matrixValues[row][col]));
     }
-    return new Row(children: texts);
+    return  new Row(children: texts);
   }
 
+  List<Widget> buildMatrixSectionViews() {
+    List<Widget> views = new List<Widget>();
+    views.add(new FloatingActionButton(
+      onPressed: (){updateMatrix();},
+      tooltip: 'Next',
+      child: new Icon(Icons.navigate_next),
+    ));
+    views.addAll(buildRows());
+
+    return views;
+  }
+
+  updateMatrix() {
+    print("called");
+
+    if (cRow >= numRows) return;
+    setState(() {
+      cCol++;
+      if (cCol >= numCols) {
+        cCol = 0;
+        cRow++;
+      }
+    });
+  }
+
+  String getDisplayScore(int row, int col) {
+    if(row<=cRow && col <=cCol){
+    String val =   solutionMatrix.getScore(row - 1, col -1).toString();
+    if(val == null){
+      print("damnnn!");
+    }
+      return val; //solution matrix has 1 less row and column
+    }
+
+    return '-';
+  }
 }
 
 //matrix section end
-
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -216,7 +230,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(
-          seqAlgorithm: 'Global', matrixSize: 5), //TODO get data from home screen
+          seqAlgorithm: 'Global',
+          matrixSize: 5), //TODO get data from home screen
     );
   }
 }
@@ -242,22 +257,12 @@ class MyHomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           new ScoreSection(
-              leftScore,
-              upScore,
-              rightScore,
-              upAdd,
-              leftAdd,
-              diagAdd,
-              false),
+              leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd, false),
           new MatrixSection(
-              new GlobalAlignment(-1, new SimilarityMatrix(),"ABCDE", "BCDE"),
-              "ABCDE", "BCDE"),
+              new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CD"),
+              "AB",
+              "CD"),
         ],
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: nextClickedCallback(),
-        tooltip: 'Next',
-        child: new Icon(Icons.navigate_next),
       ),
     );
   }

@@ -3,12 +3,12 @@ import 'package:biproject/algorithms/seq_alignment.dart';
 
 class Matrix {
   int numRows, numCols;
-  var cells = new List<List<Cell>>();
+  var cells ;
 
   Matrix(this.numRows, this.numCols){
-
+    cells = new List<List<Cell>>(numRows*numCols);
     for (int row = 0; row < numRows; row++) {
-      var rowMatrix = new List<Cell>();
+      var rowMatrix = new List<Cell>(numRows);
       for (int col = 0; col < numCols; col++) {
         rowMatrix[col]  = new Cell(row, col);
       }

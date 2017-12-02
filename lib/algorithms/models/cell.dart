@@ -2,7 +2,7 @@ import 'package:biproject/algorithms/seq_alignment.dart';
 
 class Cell{
 
-   int score;
+   int score=0;
    int row;
    int col;
    side tbSide;

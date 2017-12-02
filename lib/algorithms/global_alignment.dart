@@ -31,7 +31,7 @@ class GlobalAlignment extends SeqAlignment{
     int upScore = matrix.getScore(row-1, col);
     int diagScore = matrix.getScore(row-1, col-1);
     String queryChar = getQueryChar(row);
-    String dbChar = getDBChar(row);
+    String dbChar = getDBChar(col);
 
     int scoreFromLeft = leftScore + gapPenalty;
     int scoreFromUp = upScore + gapPenalty;

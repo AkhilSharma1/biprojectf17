@@ -15,14 +15,14 @@ abstract class SeqAlignment {
     numRows = querySeq.length + 1; //We have one extra row and column
     numCols = dbSeq.length + 1; //We have one extra row and column
     matrix = new Matrix(numRows, numCols);
-    _initializeGapPenaltyRowColumn();
-    _fillMatrix();
-    _traceback();
+    initializeGapPenaltyRowColumn();
+    fillMatrix();
+//    traceback();
   }
 
-  void _initializeGapPenaltyRowColumn();
+  void initializeGapPenaltyRowColumn();
 
-  void _fillMatrix() {
+  void fillMatrix() {
     int xMin = 1, yMin = 1;
 
     for (int row = xMin; row < numRows; row++) {
@@ -69,7 +69,7 @@ abstract class SeqAlignment {
 
   String getDBChar(int col) {return col>0?dbSeq[col-1]:'.';}
 
-  void _traceback();
+  void traceback();
 
 
 }
