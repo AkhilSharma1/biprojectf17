@@ -4,7 +4,7 @@ import 'package:biproject/algorithms/models/cell.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
 
 class LocalAlignment extends SeqAlignment{
-  LocalAlignment(AlgoType algoType, int gapPenalty, similarityMatrix,x,y) : super(algoType, gapPenalty, similarityMatrix,x,y);
+  LocalAlignment(  int gapPenalty, similarityMatrix,x,y) : super( gapPenalty, similarityMatrix,x,y);
 
 
   @override

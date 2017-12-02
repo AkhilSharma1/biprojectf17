@@ -1,33 +1,16 @@
 
+import 'package:biproject/algorithms/global_alignment.dart';
+import 'package:biproject/algorithms/matrix.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
+import 'package:biproject/algorithms/similarity_matrix.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(new MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Teach',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new MyHomePage(
-          seqAlgorithm: 'Global', matrixSize: 5), //TODO get data from home screen
-    );
-  }
-}
 
-/*class TeachPage extends StatelessWidget{
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-  }
-}*/
+typedef void nextClickedCallback();
 
 class ScoreSection extends StatelessWidget {
   final int leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd;
@@ -86,16 +69,24 @@ class MatrixSection extends StatefulWidget {
   MatrixSection(this.seqAlignmentAlgorithm,  this.querySeq, this.dbSeq);
 
   @override
-  _MatrixState createState() => new _MatrixState( querySeq,  dbSeq);
+  _MatrixState createState() => new _MatrixState( querySeq,  dbSeq, seqAlignmentAlgorithm);
 }
 
 class _MatrixState extends State<MatrixSection> {
   int numRows, numCols, cRow, cCol;
+  List<List<String>> matrixValues = new List<List<String>>();
+  Matrix solutionMatrix;
 
-  _MatrixState(String querySeq, String dbSeq){
+  _MatrixState(String querySeq, String dbSeq, SeqAlignment seqAlignmentAlgorithm){
+    seqAlignmentAlgorithm.solve();
+    solutionMatrix = seqAlignmentAlgorithm.matrix;
+
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
+
+    initializeMatrixValues();
   }
+
 
   Widget buildDisabledText([String text ='']) {
     return buildText(text);
@@ -132,7 +123,6 @@ class _MatrixState extends State<MatrixSection> {
           children: buildRows(),
         )
     );
-
   }
 
   List<Widget> buildRows() {
@@ -158,6 +148,36 @@ class _MatrixState extends State<MatrixSection> {
     return mRows;
   }
 
+
+  void initializeMatrixValues() {
+
+    //first row
+    matrixValues[0][0] = '-';
+    matrixValues[0][1] = '-';
+    for( int col = 2;col<numCols; col++){
+      matrixValues[0][col] = widget.dbSeq[col-2];
+    }
+
+    //first column
+    matrixValues[1][0] = '-';
+    for(int row = 2; row<numRows; row++){
+      matrixValues[row][0] = widget.querySeq[row-2];
+
+    }
+
+    //gap penalty row (2nd row)
+    for( int col = 2;col<numCols; col++){
+      matrixValues[0][col] = solutionMatrix.getScore(0, col-1).toString();
+    }
+
+    //gap penalty column(2nd column)
+    for( int row = 2;row<numRows; row++) {
+      matrixValues[row][0] = solutionMatrix.getScore(row - 1, 0).toString();
+    }
+
+    }
+
+
   Row buildAlphabetRow() {
     List<Text>  texts = new List();
 
@@ -179,12 +199,27 @@ class _MatrixState extends State<MatrixSection> {
     }
     return new Row(children: texts);
   }
+
 }
 
-
-
-
 //matrix section end
+
+
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Teach',
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: new MyHomePage(
+          seqAlgorithm: 'Global', matrixSize: 5), //TODO get data from home screen
+    );
+  }
+}
 
 class MyHomePage extends StatelessWidget {
 //StatefulWidget {
@@ -214,11 +249,13 @@ class MyHomePage extends StatelessWidget {
               leftAdd,
               diagAdd,
               false),
-          new MatrixSection(null, "ABCDE", "BCDE"),
+          new MatrixSection(
+              new GlobalAlignment(-1, new SimilarityMatrix(),"ABCDE", "BCDE"),
+              "ABCDE", "BCDE"),
         ],
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: null, //TODO
+        onPressed: nextClickedCallback(),
         tooltip: 'Next',
         child: new Icon(Icons.navigate_next),
       ),

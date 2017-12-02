@@ -5,8 +5,8 @@ import 'package:biproject/algorithms/seq_alignment.dart';
 
 
 class GlobalAlignment extends SeqAlignment{
-  GlobalAlignment(AlgoType algoType, int gapPenalty, similarityMatrix, String x, String y)
-      : super(algoType, gapPenalty, similarityMatrix,x,y);
+  GlobalAlignment( int gapPenalty, similarityMatrix, String x, String y)
+      : super( gapPenalty, similarityMatrix,x,y);
 
 
   @override

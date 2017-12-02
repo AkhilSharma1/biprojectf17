@@ -6,24 +6,23 @@ import 'package:biproject/algorithms/models/cell.dart';
 abstract class SeqAlignment {
   var similarityMatrix;
   int gapPenalty, numRows, numCols, alignmentScore;
-  AlgoType algoType;
   Matrix matrix;
   String querySeq, dbSeq, alignedQuerySeq, alignedDBSeq;
 
-  SeqAlignment(this.algoType, this.gapPenalty, this.similarityMatrix, this.querySeq, this.dbSeq);
+  SeqAlignment(this.gapPenalty, this.similarityMatrix, this.querySeq, this.dbSeq);
 
   void solve() {
     numRows = querySeq.length + 1; //We have one extra row and column
     numCols = dbSeq.length + 1; //We have one extra row and column
     matrix = new Matrix(numRows, numCols);
-    initializeGapPenaltyRowColumn();
-    fillMatrix();
-    traceback();
+    _initializeGapPenaltyRowColumn();
+    _fillMatrix();
+    _traceback();
   }
 
-  void initializeGapPenaltyRowColumn();
+  void _initializeGapPenaltyRowColumn();
 
-  void fillMatrix() {
+  void _fillMatrix() {
     int xMin = 1, yMin = 1;
 
     for (int row = xMin; row < numRows; row++) {
@@ -70,7 +69,7 @@ abstract class SeqAlignment {
 
   String getDBChar(int col) {return col>0?dbSeq[col-1]:'.';}
 
-  void traceback();
+  void _traceback();
 
 
 }
