@@ -8,7 +8,6 @@ void main() {
   runApp(new MyApp());
 }
 
-
 class ScoreSection extends StatelessWidget {
   final int leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd;
   final bool isAMatch;
@@ -74,9 +73,9 @@ class _MatrixState extends State<MatrixSection> {
   int numRows, numCols, cRow = 2, cCol = 2;
   List<List<String>> matrixValues;
   Matrix solutionMatrix;
+  String dbSeq, querySeq;
 
-  _MatrixState(
-      String querySeq, String dbSeq, SeqAlignment seqAlignmentAlgorithm) {
+  _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
     matrixValues = new List<List<String>>(numRows);
@@ -86,6 +85,7 @@ class _MatrixState extends State<MatrixSection> {
 
     seqAlignmentAlgorithm.solve();
     solutionMatrix = seqAlignmentAlgorithm.matrix;
+    initializeMatrixValues();
   }
 
   Widget buildDisabledText([String text = '-']) {
@@ -116,8 +116,6 @@ class _MatrixState extends State<MatrixSection> {
 
   @override
   Widget build(BuildContext context) {
-    initializeMatrixValues();
-
     //create alphabet row
     return new Expanded(
         child: new Column(
@@ -126,14 +124,9 @@ class _MatrixState extends State<MatrixSection> {
   }
 
   List<Widget> buildRows() {
-//    Row alphabetRow = buildAlphabetRow();
-//    Row firstRow = buildFirstRow();
-
     List<Row> mRows = new List();
-//    mRows.add(alphabetRow);
-//    mRows.add(firstRow);
 
-    for( int row = 0;row<numRows; row++) {
+    for (int row = 0; row < numRows; row++) {
       mRows.add(buildRow(row));
     }
 
@@ -145,17 +138,17 @@ class _MatrixState extends State<MatrixSection> {
     matrixValues[0][0] = '-';
     matrixValues[0][1] = '-';
     for (int col = 2; col < numCols; col++) {
-      matrixValues[0][col] = widget.dbSeq[col - 2];
+      matrixValues[0][col] = dbSeq[col - 2];
     }
 
     //first column(query letters)
     matrixValues[1][0] = '-';
     for (int row = 2; row < numRows; row++) {
-      matrixValues[row][0] = widget.querySeq[row - 2];
+      matrixValues[row][0] = querySeq[row - 2];
     }
     //gap penalty row (2nd row)
     for (int col = 1; col < numCols; col++) {
-      matrixValues[1][col] = solutionMatrix.getScore(0, col-1).toString();
+      matrixValues[1][col] = solutionMatrix.getScore(0, col - 1).toString();
     }
 
     //gap penalty column(2nd column)
@@ -163,27 +156,27 @@ class _MatrixState extends State<MatrixSection> {
       matrixValues[row][1] = solutionMatrix.getScore(row - 1, 0).toString();
     }
 
-    for (int row = 2; row < numRows; row++){
-      for(int col = 2; col<numCols;col++){
+    for (int row = 2; row < numRows; row++) {
+      for (int col = 2; col < numCols; col++) {
         matrixValues[row][col] = getDisplayScore(row, col);
       }
-
     }
   }
 
-
-  Row buildRow(int row){
+  Row buildRow(int row) {
     List<Text> texts = new List();
     for (int col = 0; col < numCols; col++) {
       texts.add(buildDisabledText(matrixValues[row][col]));
     }
-    return  new Row(children: texts);
+    return new Row(children: texts);
   }
 
   List<Widget> buildMatrixSectionViews() {
     List<Widget> views = new List<Widget>();
     views.add(new FloatingActionButton(
-      onPressed: (){updateMatrix();},
+      onPressed: () {
+        updateMatrix();
+      },
       tooltip: 'Next',
       child: new Icon(Icons.navigate_next),
     ));
@@ -193,24 +186,22 @@ class _MatrixState extends State<MatrixSection> {
   }
 
   updateMatrix() {
-    print("called");
-
     if (cRow >= numRows) return;
     setState(() {
       cCol++;
-      if (cCol >= numCols) {
-        cCol = 0;
+      if (cCol > numCols) {
+        cCol = 3;
         cRow++;
       }
+      if (cRow >= numRows) return;
+
+      matrixValues[cRow][cCol-1] = solutionMatrix.getScore(cRow-1, cCol - 2).toString();
     });
   }
 
   String getDisplayScore(int row, int col) {
-    if(row<=cRow && col <=cCol){
-    String val =   solutionMatrix.getScore(row - 1, col -1).toString();
-    if(val == null){
-      print("damnnn!");
-    }
+    if (row <= cRow && col < cCol) {
+      String val = solutionMatrix.getScore(row - 1, col - 1).toString();
       return val; //solution matrix has 1 less row and column
     }
 
@@ -259,9 +250,9 @@ class MyHomePage extends StatelessWidget {
           new ScoreSection(
               leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd, false),
           new MatrixSection(
-              new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CD"),
+              new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"),
               "AB",
-              "CD"),
+              "CB"),
         ],
       ),
     );
