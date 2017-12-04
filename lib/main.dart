@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
 
     // Create button
-    RaisedButton submitButton = new RaisedButton(
+    RaisedButton learnButton = new RaisedButton(
         color: Colors.blue.shade900,
         child: new Text("Learn",
           style: new TextStyle(
@@ -62,6 +62,19 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         onPressed: () {
           // More code goes here
+        }
+    );
+
+    RaisedButton solveButton = new RaisedButton(
+        color: Colors.blue.shade900,
+        child: new Text("Solve",
+          style: new TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+        ),
+        onPressed: () {
         }
     );
 
@@ -111,14 +124,30 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: const EdgeInsets.all(16.0),
         child: new Column(
             children: [ image,
-            new Container(
-                margin: const EdgeInsets.only(top: 30.0),
-                child: alignmentType
-            ),
-            new Container(
-                margin: const EdgeInsets.only(top: 50.0),
-                child: submitButton
-            )
+              new Container(
+                  margin: const EdgeInsets.only(top: 50.0),
+                  child: alignmentType
+              ),
+              new Container(
+                  margin: const EdgeInsets.only(top: 70.0),
+                  child: new Row(
+                    // <Widget> is the type of items in the list.
+                    children: <Widget>[
+                      new Column(
+                          children: [learnButton,
+                            new Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 105.0),
+                            )
+                          ]
+                      ),
+                      new Column(
+                          children: [solveButton, new Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 60.0),
+                          )]
+                      )
+                    ],
+                  )
+              )
             ]
         )
     );

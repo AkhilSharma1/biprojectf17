@@ -2,6 +2,7 @@ name: biproject
 description: Education app for sequence alignment
 
 dependencies:
+  numberpicker: "^0.1.0"
   flutter:
     sdk: flutter
 
