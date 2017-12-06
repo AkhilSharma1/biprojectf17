@@ -13,8 +13,8 @@ class ScoreSection extends StatelessWidget {
   final bool isAMatch;
   String dbChar, queryChar;
 
-  ScoreSection(this.dbChar, this.queryChar, this.leftScore, this.upScore, this.diagScore, this.gapPenalty,
-      this.diagAdd, this.isAMatch);
+  ScoreSection(this.dbChar, this.queryChar, this.leftScore, this.upScore,
+      this.diagScore, this.gapPenalty, this.diagAdd, this.isAMatch);
 
   //TODO : add formatting
   Text buildScoreText(
@@ -80,8 +80,6 @@ class _MatrixState extends State<MatrixSection> {
   int leftScore, upScore, diagScore, gapPenalty, diagAdd;
   bool isAMatch;
 
-
-
   _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
@@ -127,40 +125,48 @@ class _MatrixState extends State<MatrixSection> {
     return new Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        new ScoreSection(
-            dbChar, queryChar, leftScore, upScore, diagScore, gapPenalty, diagAdd, isAMatch),
-
-            new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: buildMatrixSectionViews())
-//        )
+        new ScoreSection(dbChar, queryChar, leftScore, upScore, diagScore,
+            gapPenalty, diagAdd, isAMatch),
+        new Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          new Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: buildRows(),
+          ),
+          new FloatingActionButton(
+            onPressed: () {
+              updateMatrix();
+            },
+            tooltip: 'Next',
+            child: new Icon(Icons.navigate_next),
+          ),
+        ]),
       ],
     );
   }
 
-  void calculateScoreSectionVals(){
+  void calculateScoreSectionVals() {
     print('$cRow:$cCol');
-     leftScore = solutionMatrix.getScore(cRow-1, cCol -2);
-     diagScore = solutionMatrix.getScore(cRow-2, cCol -2);
-     upScore = solutionMatrix.getScore(cRow-2, cCol -1);
+    leftScore = solutionMatrix.getScore(cRow - 1, cCol - 2);
+    diagScore = solutionMatrix.getScore(cRow - 2, cCol - 2);
+    upScore = solutionMatrix.getScore(cRow - 2, cCol - 1);
 
-     print('$cRow:$cCol -> $leftScore, $diagScore, $upScore');
+    print('$cRow:$cCol -> $leftScore, $diagScore, $upScore');
 
-     gapPenalty = -1;
-     diagAdd = querySeq[cRow-2] == dbSeq[cCol - 2]?1:-1;
-     isAMatch = querySeq[cRow-2] == dbSeq[cCol - 2]?true:false;
-     dbChar = dbSeq[cCol -2];
-     queryChar = querySeq[cRow -2];
-
+    gapPenalty = -1;
+    diagAdd = querySeq[cRow - 2] == dbSeq[cCol - 2] ? 1 : -1;
+    isAMatch = querySeq[cRow - 2] == dbSeq[cCol - 2] ? true : false;
+    dbChar = dbSeq[cCol - 2];
+    queryChar = querySeq[cRow - 2];
   }
 
   updateMatrix() {
     if (cRow >= numRows) return;
     setState(() {
-      matrixValues[cRow][cCol] = solutionMatrix.getScore(cRow-1, cCol - 1).toString();
+      matrixValues[cRow][cCol] =
+          solutionMatrix.getScore(cRow - 1, cCol - 1).toString();
 
       cCol++;
-      if (cCol ==numCols) {
+      if (cCol == numCols) {
         cCol = 2;
         cRow++;
       }
@@ -169,7 +175,6 @@ class _MatrixState extends State<MatrixSection> {
       calculateScoreSectionVals();
     });
   }
-
 
   List<Widget> buildRows() {
     List<Row> mRows = new List();
@@ -219,22 +224,6 @@ class _MatrixState extends State<MatrixSection> {
     return new Row(children: texts);
   }
 
-  List<Widget> buildMatrixSectionViews() {
-    List<Widget> views = new List<Widget>();
-    views.add(new FloatingActionButton(
-      onPressed: () {
-        updateMatrix();
-      },
-      tooltip: 'Next',
-      child: new Icon(Icons.navigate_next),
-    ));
-    views.addAll(buildRows());
-
-    return views;
-  }
-
-
-
   String getDisplayScore(int row, int col) {
     if (row <= cRow && col < cCol) {
       String val = solutionMatrix.getScore(row - 1, col - 1).toString();
@@ -270,7 +259,6 @@ class MyHomePage extends StatelessWidget {
   final String seqAlgorithm;
   final int matrixSize;
 
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -280,7 +268,6 @@ class MyHomePage extends StatelessWidget {
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-
           new MatrixSection(
               new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"),
               "AB",

@@ -42,7 +42,7 @@ class _NumberPickerState extends State<NumberPickerSection> {
   }
 }
 
-
+//
 class MatrixSection extends StatefulWidget {
 //  final Matrix solvedMatrix; //provided by algo
 //  final ListQueue traceBackStack;
