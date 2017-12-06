@@ -115,6 +115,8 @@ class _MatrixState extends State<MatrixSection> {
       height: 48.0,
       child: new Text(
         text,
+        textScaleFactor: 2.0,
+        textAlign: TextAlign.center,
         style: new TextStyle(color: textColor),
       ),
     );
@@ -138,18 +140,28 @@ class _MatrixState extends State<MatrixSection> {
       children: <Widget>[
         new ScoreSection(dbChar, queryChar, leftScore, upScore, diagScore,
             gapPenalty, diagAdd, isAMatch),
-        new Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        new Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+
+
           new Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: buildRows(),
           ),
-          new FloatingActionButton(
-            onPressed: () {
-              updateMatrix();
-            },
-            tooltip: 'Next',
-            child: new Icon(Icons.navigate_next),
+          new Expanded(
+
+          child: new Center(
+            child: new FloatingActionButton(
+              onPressed: () {
+                updateMatrix();
+              },
+              tooltip: 'Next',
+              child: new Icon(Icons.navigate_next),
+            ),
           ),
+          )
+
         ]),
       ],
     );
