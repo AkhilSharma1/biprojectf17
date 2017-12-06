@@ -9,11 +9,12 @@ void main() {
 }
 
 class ScoreSection extends StatelessWidget {
-  final int leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd;
+  final int leftScore, upScore, diagScore, gapPenalty, diagAdd;
   final bool isAMatch;
+  String dbChar, queryChar;
 
-  ScoreSection(this.leftScore, this.upScore, this.rightScore, this.upAdd,
-      this.leftAdd, this.diagAdd, this.isAMatch);
+  ScoreSection(this.dbChar, this.queryChar, this.leftScore, this.upScore, this.diagScore, this.gapPenalty,
+      this.diagAdd, this.isAMatch);
 
   //TODO : add formatting
   Text buildScoreText(
@@ -44,9 +45,9 @@ class ScoreSection extends StatelessWidget {
             new Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                buildScoreText(context, 'UP SCORE', 0, 0),
-                buildScoreText(context, 'LEFT SCORE', 0, 0),
-                buildScoreText(context, 'DIAG SCORE', 0, 0),
+                buildScoreText(context, 'UP SCORE', upScore, gapPenalty),
+                buildScoreText(context, 'LEFT SCORE', leftScore, gapPenalty),
+                buildScoreText(context, 'DIAG SCORE', diagScore, diagAdd),
               ],
             ),
             buildMatchText()
@@ -73,7 +74,13 @@ class _MatrixState extends State<MatrixSection> {
   int numRows, numCols, cRow = 2, cCol = 2;
   List<List<String>> matrixValues;
   Matrix solutionMatrix;
-  String dbSeq, querySeq;
+  String dbSeq, querySeq, dbChar, queryChar;
+
+  //for scoring section
+  int leftScore, upScore, diagScore, gapPenalty, diagAdd;
+  bool isAMatch;
+
+
 
   _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
@@ -86,6 +93,7 @@ class _MatrixState extends State<MatrixSection> {
     seqAlignmentAlgorithm.solve();
     solutionMatrix = seqAlignmentAlgorithm.matrix;
     initializeMatrixValues();
+    calculateScoreSectionVals();
   }
 
   Widget buildDisabledText([String text = '-']) {
@@ -116,12 +124,52 @@ class _MatrixState extends State<MatrixSection> {
 
   @override
   Widget build(BuildContext context) {
-    //create alphabet row
-    return new Expanded(
-        child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: buildMatrixSectionViews()));
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        new ScoreSection(
+            dbChar, queryChar, leftScore, upScore, diagScore, gapPenalty, diagAdd, isAMatch),
+
+            new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: buildMatrixSectionViews())
+//        )
+      ],
+    );
   }
+
+  void calculateScoreSectionVals(){
+    print('$cRow:$cCol');
+     leftScore = solutionMatrix.getScore(cRow-1, cCol -2);
+     diagScore = solutionMatrix.getScore(cRow-2, cCol -2);
+     upScore = solutionMatrix.getScore(cRow-2, cCol -1);
+
+     print('$cRow:$cCol -> $leftScore, $diagScore, $upScore');
+
+     gapPenalty = -1;
+     diagAdd = querySeq[cRow-2] == dbSeq[cCol - 2]?1:-1;
+     isAMatch = querySeq[cRow-2] == dbSeq[cCol - 2]?true:false;
+     dbChar = dbSeq[cCol -2];
+     queryChar = querySeq[cRow -2];
+
+  }
+
+  updateMatrix() {
+    if (cRow >= numRows) return;
+    setState(() {
+      matrixValues[cRow][cCol] = solutionMatrix.getScore(cRow-1, cCol - 1).toString();
+
+      cCol++;
+      if (cCol ==numCols) {
+        cCol = 2;
+        cRow++;
+      }
+      if (cRow >= numRows) return;
+
+      calculateScoreSectionVals();
+    });
+  }
+
 
   List<Widget> buildRows() {
     List<Row> mRows = new List();
@@ -185,19 +233,7 @@ class _MatrixState extends State<MatrixSection> {
     return views;
   }
 
-  updateMatrix() {
-    if (cRow >= numRows) return;
-    setState(() {
-      cCol++;
-      if (cCol > numCols) {
-        cCol = 3;
-        cRow++;
-      }
-      if (cRow >= numRows) return;
 
-      matrixValues[cRow][cCol-1] = solutionMatrix.getScore(cRow-1, cCol - 2).toString();
-    });
-  }
 
   String getDisplayScore(int row, int col) {
     if (row <= cRow && col < cCol) {
@@ -234,9 +270,6 @@ class MyHomePage extends StatelessWidget {
   final String seqAlgorithm;
   final int matrixSize;
 
-//for scoring section
-  int leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd;
-  bool isAMatch;
 
   @override
   Widget build(BuildContext context) {
@@ -247,8 +280,7 @@ class MyHomePage extends StatelessWidget {
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          new ScoreSection(
-              leftScore, upScore, rightScore, upAdd, leftAdd, diagAdd, false),
+
           new MatrixSection(
               new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"),
               "AB",
