@@ -120,6 +120,17 @@ class _MatrixState extends State<MatrixSection> {
     );
   }
 
+  Widget getTextView(String matrixValue, int row, int col) {
+
+    if(row == cRow && col == cCol)
+      return buildHighlightedText(matrixValue);
+    if((row == cRow-1 && col == cCol-1) || (row == cRow && col == cCol-1) || (row == cRow-1 && col == cCol))
+      return buildNeighborText(matrixValue);
+
+    return buildDisabledText(matrixValue);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return new Column(
@@ -219,7 +230,7 @@ class _MatrixState extends State<MatrixSection> {
   Row buildRow(int row) {
     List<Text> texts = new List();
     for (int col = 0; col < numCols; col++) {
-      texts.add(buildDisabledText(matrixValues[row][col]));
+      texts.add(getTextView( matrixValues[row][col], row, col,));
     }
     return new Row(children: texts);
   }
@@ -232,6 +243,7 @@ class _MatrixState extends State<MatrixSection> {
 
     return '-';
   }
+
 }
 
 //matrix section end
