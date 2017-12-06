@@ -8,6 +8,7 @@ abstract class SeqAlignment {
   int gapPenalty, numRows, numCols, alignmentScore;
   Matrix matrix;
   String querySeq, dbSeq, alignedQuerySeq, alignedDBSeq;
+  ListQueue<Cell> tracebackStack;
 
   SeqAlignment(this.gapPenalty, this.similarityMatrix, this.querySeq, this.dbSeq);
 
@@ -17,7 +18,8 @@ abstract class SeqAlignment {
     matrix = new Matrix(numRows, numCols);
     initializeGapPenaltyRowColumn();
     fillMatrix();
-//    traceback();
+    traceback();
+    calculateAlignedSeq();
   }
 
   void initializeGapPenaltyRowColumn();
@@ -33,8 +35,11 @@ abstract class SeqAlignment {
 
   }
 
-  List<String> calculateAlignedSeq(ListQueue<Cell> tracebackStack){
+  calculateAlignedSeq(){
     StringBuffer alignedQuerySeq = new StringBuffer(), alignedDBSeq = new StringBuffer();
+    var tracebackStack = new ListQueue<Cell>();
+    tracebackStack.addAll(tracebackStack);
+
     while(!tracebackStack.isEmpty){
       Cell cell = tracebackStack.removeFirst();
 
@@ -58,9 +63,8 @@ abstract class SeqAlignment {
       }
     }
 
-    List<String> seqs = [alignedQuerySeq.toString(), alignedDBSeq.toString()];
-
-    return  seqs;
+    this.alignedQuerySeq = alignedQuerySeq.toString();
+    this.alignedDBSeq = alignedDBSeq.toString();
   }
 
   void fillScore(int row, int col);

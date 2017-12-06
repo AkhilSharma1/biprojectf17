@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:biproject/algorithms/global_alignment.dart';
 import 'package:biproject/algorithms/matrix.dart';
+import 'package:biproject/algorithms/models/cell.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
 import 'package:biproject/algorithms/similarity_matrix.dart';
 import 'package:flutter/material.dart';
@@ -75,22 +78,21 @@ class _MatrixState extends State<MatrixSection> {
   List<List<String>> matrixValues;
   Matrix solutionMatrix;
   String dbSeq, querySeq, dbChar, queryChar;
+  List<List<bool>> traceBackMatrix;
 
   //for scoring section
   int leftScore, upScore, diagScore, gapPenalty, diagAdd;
-  bool isAMatch;
+  bool isAMatch, highlightTBCells;
+
 
   _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
-    matrixValues = new List<List<String>>(numRows);
-    for (int row = 0; row < numRows; row++) {
-      matrixValues[row] = new List<String>(numCols);
-    }
 
     seqAlignmentAlgorithm.solve();
     solutionMatrix = seqAlignmentAlgorithm.matrix;
     initializeMatrixValues();
+    intializeTraceBackMatrix(seqAlignmentAlgorithm.tracebackStack);
     calculateScoreSectionVals();
   }
 
@@ -104,6 +106,9 @@ class _MatrixState extends State<MatrixSection> {
 
   Widget buildHighlightedText(String text) {
     return buildText(text, bgColor: Colors.green);
+  }
+  Widget buildTracebackText(String matrixValue) {
+    return buildText(matrixValue, bgColor: Colors.red);
   }
 
   Widget buildText(String text,
@@ -124,6 +129,13 @@ class _MatrixState extends State<MatrixSection> {
 
   Widget getTextView(String matrixValue, int row, int col) {
 
+    if(highlightTBCells==true) {
+      if (traceBackMatrix[row][col] == true)
+        return buildTracebackText(matrixValue);
+      else
+        return buildDisabledText(matrixValue);
+    }
+
     if(row == cRow && col == cCol)
       return buildHighlightedText(matrixValue);
     if((row == cRow-1 && col == cCol-1) || (row == cRow && col == cCol-1) || (row == cRow-1 && col == cCol))
@@ -143,14 +155,11 @@ class _MatrixState extends State<MatrixSection> {
         new Row(mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-
-
           new Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: buildRows(),
           ),
           new Expanded(
-
           child: new Center(
             child: new FloatingActionButton(
               onPressed: () {
@@ -193,7 +202,10 @@ class _MatrixState extends State<MatrixSection> {
         cCol = 2;
         cRow++;
       }
-      if (cRow >= numRows) return;
+      if (cRow >= numRows) {
+        highlightTBCells = true;
+        return;
+      }
 
       calculateScoreSectionVals();
     });
@@ -210,6 +222,12 @@ class _MatrixState extends State<MatrixSection> {
   }
 
   void initializeMatrixValues() {
+    matrixValues = new List<List<String>>(numRows);
+    for (int row = 0; row < numRows; row++) {
+      matrixValues[row] = new List<String>(numCols);
+    }
+
+
     //first row (db letters)
     matrixValues[0][0] = '-';
     matrixValues[0][1] = '-';
@@ -256,6 +274,19 @@ class _MatrixState extends State<MatrixSection> {
     return '-';
   }
 
+  void intializeTraceBackMatrix(ListQueue<Cell> tracebackStack) {
+    traceBackMatrix = new List<List<bool>>(numRows);
+    for (int row = 0; row < numRows; row++) {
+      traceBackMatrix[row] = new List<bool>(numCols);
+    }
+
+
+    while(tracebackStack.isNotEmpty){
+      Cell cell = tracebackStack.removeFirst();
+      traceBackMatrix[cell.row+1][cell.col+1] = true;
+    }
+
+  }
 }
 
 //matrix section end

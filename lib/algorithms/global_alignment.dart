@@ -5,6 +5,7 @@ import 'package:biproject/algorithms/seq_alignment.dart';
 
 
 class GlobalAlignment extends SeqAlignment{
+
   GlobalAlignment( int gapPenalty, similarityMatrix, String x, String y)
       : super( gapPenalty, similarityMatrix,x,y);
 
@@ -54,23 +55,17 @@ class GlobalAlignment extends SeqAlignment{
   @override
   void traceback() {
     int row = numRows - 1, col =  numCols - 1;
-
-    ListQueue<Cell> tracebackStack = new ListQueue<Cell>();
-
-    Cell cell = matrix.getCell(row, col);
+    tracebackStack = new ListQueue<Cell>();
+    Cell cell;
 
     do{
-      tracebackStack.addFirst(cell);
+      cell = matrix.getCell(row, col);
+      tracebackStack.add(cell);
 
       row = cell.tracebackCell.row;
       col = cell.tracebackCell.col;
     }while(row!=0 && col !=0);
-
-    List<String> seqs = calculateAlignedSeq(tracebackStack);
-    alignedQuerySeq = seqs[0];
-    alignedDBSeq = seqs[1];
+    tracebackStack.add(matrix.getCell(0, 0));
   }
-
-
   
 }

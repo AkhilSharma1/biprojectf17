@@ -54,18 +54,16 @@ class LocalAlignment extends SeqAlignment{
   void traceback() {
 //    int row = numRows - 1, col =  numCols - 1;
 
-    ListQueue<Cell> tracebackStack = new ListQueue<Cell>();
+  tracebackStack = new ListQueue<Cell>();
 
     Cell cell = getHighestScoreCell();
 
     do{
+
       tracebackStack.addFirst(cell);
       cell = cell.tracebackCell;
     }while(cell.score>0);
 
-    List<String> seqs = calculateAlignedSeq(tracebackStack);
-    alignedQuerySeq = seqs[0];
-    alignedDBSeq = seqs[1];
   }
 
   Cell getHighestScoreCell() {
