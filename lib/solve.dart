@@ -300,7 +300,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(seqAlgorithm),
+        title: new Text("Solve "+seqAlgorithm+" Sequence Alignment"),
       ),
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
