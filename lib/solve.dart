@@ -29,13 +29,19 @@ class _NumberPickerState extends State<NumberPickerSection> {
     return new Container(
       child: new Column(
           children: <Widget>[
+            new Text(
+              "Pick a number",
+              textScaleFactor: 1.5,
+              textAlign: TextAlign.center,
+              style: new TextStyle(color: Colors.black),
+            ),
             new NumberPicker.integer(
                 initialValue: _currentValue,
                 minValue: -50,
                 maxValue: 50,
                 onChanged: (newValue) =>
                     setState(() => _currentValue = newValue)),
-            new Text("Current number: $_currentValue"),
+//            new Text("Current number: $_currentValue"),
           ],
         ),
       );
@@ -81,19 +87,6 @@ class _MatrixState extends State<MatrixSection> {
     return buildText(text);
   }
 
-  Widget buildEnabledText(TextEditingController _controller) {
-
-    return new Container(
-      margin: new EdgeInsets.all(5.0), //TODO formatting
-      color: Colors.grey,
-      width: 48.0,
-      height: 48.0,
-      child: new TextField(
-          controller: _controller,
-      ),
-    );
-  }
-
   Widget buildNeighborText(String text) {
     return buildText(text, bgColor: Colors.blue);
   }
@@ -102,7 +95,7 @@ class _MatrixState extends State<MatrixSection> {
     return key.currentState.currentValue;
   }
   Widget buildHighlightedText(String text) {
-    return buildText(text, bgColor: Colors.blue);
+    return buildText(text, bgColor: Colors.green);
   }
 
   Widget buildText(String text,
@@ -114,6 +107,8 @@ class _MatrixState extends State<MatrixSection> {
       height: 48.0,
       child: new Text(
         text,
+        textScaleFactor: 2.0,
+        textAlign: TextAlign.center,
         style: new TextStyle(color: textColor),
       ),
     );
@@ -121,11 +116,36 @@ class _MatrixState extends State<MatrixSection> {
 
   @override
   Widget build(BuildContext context) {
-    //create alphabet row
-    return new Expanded(
-        child: new Column(
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        new Row(mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: buildMatrixSectionViews()));
+            children: <Widget>[
+              new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: buildRows(),
+              ),
+              new Expanded(
+                child: new Center(
+                  child: new Column(
+                  children: <Widget>[
+                    new NumberPickerSection(key: key),
+                    new FloatingActionButton(
+                    onPressed: () {
+                      updateMatrix();
+                    },
+                    tooltip: 'Next',
+                    child: new Icon(Icons.navigate_next),
+                  ),
+                  ]
+                ),
+                )
+              )
+
+            ]),
+      ],
+    );
   }
 
   List<Widget> buildRows() {
@@ -168,28 +188,24 @@ class _MatrixState extends State<MatrixSection> {
     }
   }
 
+  Widget getTextView(String matrixValue, int row, int col) {
+
+    if(row == cRow && col == cCol)
+      return buildHighlightedText(matrixValue);
+    if((row == cRow-1 && col == cCol-1) || (row == cRow && col == cCol-1) || (row == cRow-1 && col == cCol))
+      return buildNeighborText(matrixValue);
+
+    return buildDisabledText(matrixValue);
+  }
+
   Row buildRow(int row) {
 //    TextEditingController _controller;
     List<Text> texts = new List();
     for (int col = 0; col < numCols; col++) {
 //      _controller = new TextEditingController();
-      texts.add(buildDisabledText(matrixValues[row][col]));
+      texts.add(getTextView( matrixValues[row][col], row, col,));
     }
     return new Row(children: texts);
-  }
-
-  List<Widget> buildMatrixSectionViews() {
-    List<Widget> views = new List<Widget>();
-    views.add(new FloatingActionButton(
-      onPressed: () {
-        updateMatrix();
-      },
-      tooltip: 'Next',
-      child: new Icon(Icons.navigate_next),
-    ));
-    views.addAll(buildRows());
-
-    return views;
   }
 
   updateMatrix() {
@@ -265,37 +281,39 @@ class MyHomePage extends StatelessWidget {
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-           new RaisedButton(
-              color: Colors.blue.shade900,
-              child: new Text("Click to view instructions",
-                style: new TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                ),
-              ),
-              onPressed: () {
-                showModalBottomSheet<Null>(context: context, builder: (BuildContext context) {
-                  return new Container(
-                      child: new Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: new Text('Enter number in cell. Click next or move to next cell to verify.',
-                              textAlign: TextAlign.center,
-                              style: new TextStyle(
-                                  color: Theme.of(context).accentColor,
-                                  fontSize: 24.0
+            new Container(
+            margin: const EdgeInsets.only(top: 50.0),
+              child: new RaisedButton(
+                  color: Colors.blue.shade900,
+                  child: new Text("Click to view instructions",
+                    style: new TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet<Null>(context: context, builder: (BuildContext context) {
+                      return new Container(
+                          child: new Padding(
+                              padding: const EdgeInsets.all(32.0),
+                              child: new Text('Select number from number picker. Click next to verify and proceed.',
+                                  textAlign: TextAlign.center,
+                                  style: new TextStyle(
+                                      color: Theme.of(context).accentColor,
+                                      fontSize: 24.0
+                                  )
                               )
                           )
-                      )
-                  );
-                });
-              }
-           ),
-           new NumberPickerSection(key: key),
-          new MatrixSection(
-              new GlobalAlignment(-1, new SimilarityMatrix(), "ABCB", "CBBB"),
-              "ABCB",
-              "CBBB"),
+                      );
+                    });
+                  }
+              )
+          ),
+          new Container(
+            margin: const EdgeInsets.only(top: 100.0),
+            child: new MatrixSection(new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"), "AB", "CB"),
+          ),
         ],
       ),
     );
