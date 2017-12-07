@@ -216,7 +216,31 @@ class _MatrixState extends State<MatrixSection> {
         cCol = 3;
         cRow++;
       }
-      if (cRow >= numRows) return;
+      if (cRow >= numRows) {
+         showDialog<Null>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          child: new AlertDialog(
+            title: new Text('Great Work!'),
+            content: new SingleChildScrollView(
+              child: new ListBody(
+                children: <Widget>[
+                  new Text('You have now learnt to solve sequence alignment problems.'),
+                  new Text('Try tracing back the sequence.')
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
 
       var result = solutionMatrix.getScore(cRow-1, cCol - 2).toString();
       var input = getUserInput().toString();
