@@ -21,20 +21,26 @@ class ScoreSection extends StatelessWidget {
 
   //TODO : add formatting
   Text buildScoreText(
-      BuildContext context, String loc, int prevScore, int delta) {
+       String loc, int prevScore, int delta,{bool bold:false}) {
     return new Text(
       '$loc : $prevScore + ($delta) = ${prevScore+delta}',
-//      style: Theme.of(context).textTheme.display1,
+      style: new TextStyle(
+        fontWeight: bold?FontWeight.bold:FontWeight.normal,
+        fontSize: 20.0
+      )
     );
   }
 
-  Text buildMatchText() {
+  Widget buildMatchText() {
     Color textColor = isAMatch ? Colors.green : Colors.red;
     String text = isAMatch ? 'MATCH' : 'MISMATCH';
 
-    return new Text(
-      text,
-      style: new TextStyle(color: textColor),
+    return new Container(
+      margin: new EdgeInsets.only(bottom: 25.0),
+        child: new Text(
+          text,
+          style: new TextStyle(color: textColor),
+        )
     );
   }
 
@@ -47,16 +53,37 @@ class ScoreSection extends StatelessWidget {
           children: <Widget>[
             new Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                buildScoreText(context, 'UP SCORE', upScore, gapPenalty),
-                buildScoreText(context, 'LEFT SCORE', leftScore, gapPenalty),
-                buildScoreText(context, 'DIAG SCORE', diagScore, diagAdd),
-              ],
+              children:buildScoreTexts()
             ),
             buildMatchText()
           ],
         ));
   }
+
+  List<Widget> buildScoreTexts(){
+    int scoreFromLeft = leftScore + gapPenalty;
+    int scoreFromUp = upScore + gapPenalty;
+    int scoreFromDiag  = diagScore + diagAdd;
+    List<Widget> texts = new List<Widget>();
+
+    if(scoreFromLeft >=scoreFromUp && scoreFromLeft>=scoreFromDiag){
+      texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty, bold: true));
+      texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty));
+      texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd));
+
+    }else if(scoreFromUp >=scoreFromLeft && scoreFromUp>=scoreFromDiag){
+    texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty));
+    texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty,bold: true));
+    texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd));
+    }else{
+    texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty));
+    texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty));
+    texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd,bold: true));
+  }
+
+  return texts;
+  }
+
 }
 
 class MatrixSection extends StatefulWidget {
@@ -152,15 +179,17 @@ class _MatrixState extends State<MatrixSection> {
       children: <Widget>[
         new ScoreSection(dbChar, queryChar, leftScore, upScore, diagScore,
             gapPenalty, diagAdd, isAMatch),
-        new Row(mainAxisAlignment: MainAxisAlignment.center,
+        new Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
           new Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: buildRows(),
           ),
-          new Expanded(
-          child: new Center(
+//          new Expanded(child:
+          new Center(
             child: new FloatingActionButton(
               onPressed: () {
                 updateMatrix();
@@ -169,7 +198,7 @@ class _MatrixState extends State<MatrixSection> {
               child: new Icon(Icons.navigate_next),
             ),
           ),
-          )
+//          )
 
         ]),
       ],
