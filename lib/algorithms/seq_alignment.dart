@@ -38,10 +38,10 @@ abstract class SeqAlignment {
   calculateAlignedSeq(){
     StringBuffer alignedQuerySeq = new StringBuffer(), alignedDBSeq = new StringBuffer();
     var tracebackStack = new ListQueue<Cell>();
-    tracebackStack.addAll(tracebackStack);
+    tracebackStack.addAll(this.tracebackStack);
 
     while(!tracebackStack.isEmpty){
-      Cell cell = tracebackStack.removeFirst();
+      Cell cell = tracebackStack.removeLast();
 
       String indelChar = '.';
       String queryChar = getQueryChar(cell.row);

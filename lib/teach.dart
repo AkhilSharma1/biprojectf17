@@ -20,15 +20,12 @@ class ScoreSection extends StatelessWidget {
       this.diagScore, this.gapPenalty, this.diagAdd, this.isAMatch);
 
   //TODO : add formatting
-  Text buildScoreText(
-       String loc, int prevScore, int delta,{bool bold:false}) {
-    return new Text(
-      '$loc : $prevScore + ($delta) = ${prevScore+delta}',
-      style: new TextStyle(
-        fontWeight: bold?FontWeight.bold:FontWeight.normal,
-        fontSize: 20.0
-      )
-    );
+  Text buildScoreText(String loc, int prevScore, int delta,
+      {bool bold: false}) {
+    return new Text('$loc : $prevScore + ($delta) = ${prevScore+delta}',
+        style: new TextStyle(
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            fontSize: 20.0));
   }
 
   Widget buildMatchText() {
@@ -36,12 +33,11 @@ class ScoreSection extends StatelessWidget {
     String text = isAMatch ? 'MATCH' : 'MISMATCH';
 
     return new Container(
-      margin: new EdgeInsets.only(bottom: 25.0),
+        margin: new EdgeInsets.only(bottom: 25.0),
         child: new Text(
           text,
           style: new TextStyle(color: textColor),
-        )
-    );
+        ));
   }
 
   @override
@@ -52,38 +48,36 @@ class ScoreSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             new Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children:buildScoreTexts()
-            ),
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: buildScoreTexts()),
             buildMatchText()
           ],
         ));
   }
 
-  List<Widget> buildScoreTexts(){
+  List<Widget> buildScoreTexts() {
     int scoreFromLeft = leftScore + gapPenalty;
     int scoreFromUp = upScore + gapPenalty;
-    int scoreFromDiag  = diagScore + diagAdd;
+    int scoreFromDiag = diagScore + diagAdd;
     List<Widget> texts = new List<Widget>();
 
-    if(scoreFromLeft >=scoreFromUp && scoreFromLeft>=scoreFromDiag){
-      texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty, bold: true));
-      texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty));
-      texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd));
+    if (scoreFromLeft >= scoreFromUp && scoreFromLeft >= scoreFromDiag) {
+      texts
+          .add(buildScoreText('LEFT SCORE', leftScore, gapPenalty, bold: true));
+      texts.add(buildScoreText('UP SCORE', upScore, gapPenalty));
+      texts.add(buildScoreText('DIAG SCORE', diagScore, diagAdd));
+    } else if (scoreFromUp >= scoreFromLeft && scoreFromUp >= scoreFromDiag) {
+      texts.add(buildScoreText('LEFT SCORE', leftScore, gapPenalty));
+      texts.add(buildScoreText('UP SCORE', upScore, gapPenalty, bold: true));
+      texts.add(buildScoreText('DIAG SCORE', diagScore, diagAdd));
+    } else {
+      texts.add(buildScoreText('LEFT SCORE', leftScore, gapPenalty));
+      texts.add(buildScoreText('UP SCORE', upScore, gapPenalty));
+      texts.add(buildScoreText('DIAG SCORE', diagScore, diagAdd, bold: true));
+    }
 
-    }else if(scoreFromUp >=scoreFromLeft && scoreFromUp>=scoreFromDiag){
-    texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty));
-    texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty,bold: true));
-    texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd));
-    }else{
-    texts.add(buildScoreText( 'LEFT SCORE', leftScore, gapPenalty));
-    texts.add(buildScoreText( 'UP SCORE', upScore, gapPenalty));
-    texts.add(buildScoreText( 'DIAG SCORE', diagScore, diagAdd,bold: true));
+    return texts;
   }
-
-  return texts;
-  }
-
 }
 
 class MatrixSection extends StatefulWidget {
@@ -104,13 +98,12 @@ class _MatrixState extends State<MatrixSection> {
   int numRows, numCols, cRow = 2, cCol = 2;
   List<List<String>> matrixValues;
   Matrix solutionMatrix;
-  String dbSeq, querySeq, dbChar, queryChar;
+  String dbSeq, querySeq, dbChar, queryChar, alignedDBSeq, alignedQuerySeq;
   List<List<bool>> traceBackMatrix;
 
   //for scoring section
   int leftScore, upScore, diagScore, gapPenalty, diagAdd;
   bool isAMatch, highlightTBCells;
-
 
   _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
@@ -118,6 +111,8 @@ class _MatrixState extends State<MatrixSection> {
 
     seqAlignmentAlgorithm.solve();
     solutionMatrix = seqAlignmentAlgorithm.matrix;
+    alignedQuerySeq = seqAlignmentAlgorithm.alignedQuerySeq;
+    alignedDBSeq = seqAlignmentAlgorithm.alignedDBSeq;
     initializeMatrixValues();
     intializeTraceBackMatrix(seqAlignmentAlgorithm.tracebackStack);
     calculateScoreSectionVals();
@@ -134,6 +129,7 @@ class _MatrixState extends State<MatrixSection> {
   Widget buildHighlightedText(String text) {
     return buildText(text, bgColor: Colors.green);
   }
+
   Widget buildTracebackText(String matrixValue) {
     return buildText(matrixValue, bgColor: Colors.red);
   }
@@ -155,52 +151,51 @@ class _MatrixState extends State<MatrixSection> {
   }
 
   Widget getTextView(String matrixValue, int row, int col) {
-
-    if(highlightTBCells==true) {
+    if (highlightTBCells == true) {
       if (traceBackMatrix[row][col] == true)
         return buildTracebackText(matrixValue);
       else
         return buildDisabledText(matrixValue);
     }
 
-    if(row == cRow && col == cCol)
-      return buildHighlightedText(matrixValue);
-    if((row == cRow-1 && col == cCol-1) || (row == cRow && col == cCol-1) || (row == cRow-1 && col == cCol))
-      return buildNeighborText(matrixValue);
+    if (row == cRow && col == cCol) return buildHighlightedText(matrixValue);
+    if ((row == cRow - 1 && col == cCol - 1) ||
+        (row == cRow && col == cCol - 1) ||
+        (row == cRow - 1 && col == cCol)) return buildNeighborText(matrixValue);
 
     return buildDisabledText(matrixValue);
   }
-
 
   @override
   Widget build(BuildContext context) {
     return new Column(
       mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         new ScoreSection(dbChar, queryChar, leftScore, upScore, diagScore,
             gapPenalty, diagAdd, isAMatch),
-        new Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+        new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-          new Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: buildRows(),
-          ),
+              new Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: buildRows(),
+              ),
 //          new Expanded(child:
-          new Center(
-            child: new FloatingActionButton(
-              onPressed: () {
-                updateMatrix();
-              },
-              tooltip: 'Next',
-              child: new Icon(Icons.navigate_next),
-            ),
-          ),
+              new Center(
+                child: new FloatingActionButton(
+                  onPressed: () {
+                    updateMatrix();
+                  },
+                  tooltip: 'Next',
+                  child: new Icon(Icons.navigate_next),
+                ),
+              ),
 //          )
-
-        ]),
+            ]),
       ],
     );
   }
@@ -241,12 +236,28 @@ class _MatrixState extends State<MatrixSection> {
   }
 
   List<Widget> buildRows() {
-    List<Row> mRows = new List();
+    List<Widget> mRows = new List();
 
     for (int row = 0; row < numRows; row++) {
       mRows.add(buildRow(row));
     }
 
+    Column alignedSeqCol = new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        new Text('Aligned Query Seq : $alignedQuerySeq',
+            style: new TextStyle(fontSize: 20.0)),
+        new Text('Aligned DB Seq : $alignedDBSeq',
+            style: new TextStyle(fontSize: 20.0)),
+      ],
+    );
+    Container container = new Container(
+      margin: new EdgeInsets.only(top: 50.0),
+      child: alignedSeqCol,
+    );
+
+    if (highlightTBCells == true) mRows.add(container);
     return mRows;
   }
 
@@ -255,7 +266,6 @@ class _MatrixState extends State<MatrixSection> {
     for (int row = 0; row < numRows; row++) {
       matrixValues[row] = new List<String>(numCols);
     }
-
 
     //first row (db letters)
     matrixValues[0][0] = '-';
@@ -289,7 +299,11 @@ class _MatrixState extends State<MatrixSection> {
   Row buildRow(int row) {
     List<Text> texts = new List();
     for (int col = 0; col < numCols; col++) {
-      texts.add(getTextView( matrixValues[row][col], row, col,));
+      texts.add(getTextView(
+        matrixValues[row][col],
+        row,
+        col,
+      ));
     }
     return new Row(children: texts);
   }
@@ -309,12 +323,10 @@ class _MatrixState extends State<MatrixSection> {
       traceBackMatrix[row] = new List<bool>(numCols);
     }
 
-
-    while(tracebackStack.isNotEmpty){
+    while (tracebackStack.isNotEmpty) {
       Cell cell = tracebackStack.removeFirst();
-      traceBackMatrix[cell.row+1][cell.col+1] = true;
+      traceBackMatrix[cell.row + 1][cell.col + 1] = true;
     }
-
   }
 }
 
@@ -337,7 +349,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-//StatefulWidget {
   MyHomePage({Key key, this.seqAlgorithm, this.matrixSize}) : super(key: key);
 
   final String seqAlgorithm;
@@ -353,9 +364,9 @@ class MyHomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           new MatrixSection(
-              new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"),
-              "AB",
-              "CB"),
+              new GlobalAlignment(-1, new SimilarityMatrix(), "ABAB", "CBAA"),
+              "ABAB",
+              "CBAA"),
         ],
       ),
     );
