@@ -5,9 +5,6 @@ import 'package:biproject/algorithms/similarity_matrix.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 
-void main() {
-  runApp(new MyApp());
-}
 
 final key = new GlobalKey<_NumberPickerState>();
 
@@ -28,49 +25,49 @@ class _NumberPickerState extends State<NumberPickerSection> {
   Widget build(BuildContext context) {
     return new Container(
       child: new Column(
-          children: <Widget>[
-            new Text(
-              "Pick a number",
-              textScaleFactor: 1.5,
-              textAlign: TextAlign.center,
-              style: new TextStyle(color: Colors.black),
-            ),
-            new NumberPicker.integer(
-                initialValue: _currentValue,
-                minValue: -50,
-                maxValue: 50,
-                onChanged: (newValue) =>
-                    setState(() => _currentValue = newValue)),
+        children: <Widget>[
+          new Text(
+            "Pick a number",
+            textScaleFactor: 1.5,
+            textAlign: TextAlign.center,
+            style: new TextStyle(color: Colors.black),
+          ),
+          new NumberPicker.integer(
+              initialValue: _currentValue,
+              minValue: -50,
+              maxValue: 50,
+              onChanged: (newValue) =>
+                  setState(() => _currentValue = newValue)),
 //            new Text("Current number: $_currentValue"),
-          ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 }
 
-//
-class MatrixSection extends StatefulWidget {
+
+class MatrixSectionSolve extends StatefulWidget {
 //  final Matrix solvedMatrix; //provided by algo
 //  final ListQueue traceBackStack;
   final String dbSeq, querySeq;
 
   SeqAlignment seqAlignmentAlgorithm;
 
-  MatrixSection(this.seqAlignmentAlgorithm, this.querySeq, this.dbSeq);
+  MatrixSectionSolve(this.seqAlignmentAlgorithm, this.querySeq, this.dbSeq);
 
   @override
-  _MatrixState createState() =>
-      new _MatrixState(querySeq, dbSeq, seqAlignmentAlgorithm);
+  _MatrixStateSolve createState() =>
+      new _MatrixStateSolve(querySeq, dbSeq, seqAlignmentAlgorithm);
 }
 
-class _MatrixState extends State<MatrixSection> {
+class _MatrixStateSolve extends State<MatrixSectionSolve> {
   int numRows, numCols, cRow = 2, cCol = 2;
   List<List<String>> matrixValues;
   Matrix solutionMatrix;
   String dbSeq, querySeq;
 
 
-  _MatrixState(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
+  _MatrixStateSolve(this.querySeq, this.dbSeq, SeqAlignment seqAlignmentAlgorithm) {
     numRows = querySeq.length + 2;
     numCols = dbSeq.length + 2;
     matrixValues = new List<List<String>>(numRows);
@@ -127,22 +124,21 @@ class _MatrixState extends State<MatrixSection> {
                 children: buildRows(),
               ),
               new Expanded(
-                child: new Center(
-                  child: new Column(
-                  children: <Widget>[
-                    new NumberPickerSection(key: key),
-                    new FloatingActionButton(
-                    onPressed: () {
-                      updateMatrix();
-                    },
-                    tooltip: 'Next',
-                    child: new Icon(Icons.navigate_next),
-                  ),
-                  ]
-                ),
-                )
+                  child: new Center(
+                    child: new Column(
+                        children: <Widget>[
+                          new NumberPickerSection(key: key),
+                          new FloatingActionButton(
+                            onPressed: () {
+                              updateMatrix();
+                            },
+                            tooltip: 'Next',
+                            child: new Icon(Icons.navigate_next),
+                          ),
+                        ]
+                    ),
+                  )
               )
-
             ]),
       ],
     );
@@ -217,7 +213,7 @@ class _MatrixState extends State<MatrixSection> {
         cRow++;
       }
       if (cRow >= numRows) {
-         showDialog<Null>(
+        showDialog<Null>(
           context: context,
           barrierDismissible: false, // user must tap button!
           child: new AlertDialog(
@@ -246,7 +242,7 @@ class _MatrixState extends State<MatrixSection> {
       var input = getUserInput().toString();
       if(input!=result){
         Scaffold.of(context).showSnackBar(new SnackBar(
-            content: new Text('Wrong input. Please try again!.'),
+          content: new Text('Wrong input. Please try again!.'),
         ));
         cCol--;
       }
@@ -266,27 +262,9 @@ class _MatrixState extends State<MatrixSection> {
   }
 }
 
-//matrix section end
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Solve',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new MyHomePage(
-          seqAlgorithm: 'Global',
-          matrixSize: 5), //TODO get data from home screen
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
+class SolvePageDetails extends StatelessWidget {
 //StatefulWidget {
-  MyHomePage({Key key, this.seqAlgorithm, this.matrixSize}) : super(key: key);
+  SolvePageDetails({Key key, this.seqAlgorithm, this.matrixSize}) : super(key: key);
 
   final String seqAlgorithm;
   final int matrixSize;
@@ -305,8 +283,8 @@ class MyHomePage extends StatelessWidget {
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-            new Container(
-            margin: const EdgeInsets.only(top: 50.0),
+          new Container(
+              margin: const EdgeInsets.only(top: 50.0),
               child: new RaisedButton(
                   color: Colors.blue.shade900,
                   child: new Text("Click to view instructions",
@@ -336,7 +314,7 @@ class MyHomePage extends StatelessWidget {
           ),
           new Container(
             margin: const EdgeInsets.only(top: 100.0),
-            child: new MatrixSection(new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"), "AB", "CB"),
+            child: new MatrixSectionSolve(new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"), "AB", "CB"),
           ),
         ],
       ),

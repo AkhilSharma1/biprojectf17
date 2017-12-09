@@ -1,43 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:biproject/teach.dart';
+import 'package:biproject/solve.dart';
 
 void main() {
   runApp(new MyApp());
 }
+
+final key = new GlobalKey<_MyHomePageState>();
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
-        primarySwatch: Colors.blue,
-      ),
       home: new MyHomePage(title: 'Flutter Demo Home Page'),
+//      routes: <String, WidgetBuilder> {
+//        '/solve': (BuildContext context) => new SolvePageDetails(),
+//        '/learn' : (BuildContext context) => new LearnPage()
+//      },
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ), key: key
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -45,7 +34,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _value = 0;
+  int _value = 42;
+  int get alignmentType => _value;
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         onPressed: () {
-          // More code goes here
-        }
+          print(key.currentState.alignmentType);
+          Navigator.push(context, new MaterialPageRoute(
+            builder: (BuildContext context) => new LearnPage(seqAlgorithm: '', matrixSize: 5)
+          ));
+        },
+//        onPressed: () => Navigator.of(context).pushNamed('/learn')
     );
 
     RaisedButton solveButton = new RaisedButton(
@@ -74,8 +68,11 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.white,
           ),
         ),
-        onPressed: () {
-        }
+      onPressed: () {
+        Navigator.push(context, new MaterialPageRoute(
+            builder: (BuildContext context) => new SolvePageDetails(seqAlgorithm: 'Global', matrixSize: 5)
+        ));
+      },
     );
 
     Theme alignmentType = new Theme(
@@ -93,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.blue,
                 ),
               ),
-              value: 0,
+              value: 42,
             ),
             new DropdownMenuItem(
               child: new Text('Global Alignment',
@@ -106,13 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
               value: 1,
             ),
           ],
-          onChanged: (int value) {
-            setState(() {
-              _value = value;
-            });
-          },
-        )
-    );
+            onChanged: (newValue) =>
+                setState(() => _value = newValue)),
+        );
 
     Image image = new Image.asset(
           'images/dna-banner.jpg',
@@ -160,4 +153,3 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 }
-
