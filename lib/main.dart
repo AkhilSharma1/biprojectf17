@@ -32,10 +32,17 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
+class Alignment {
+  const Alignment(this.title,this.name);
+
+  final String title;
+  final String name;
+}
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _value = 42;
-  int get alignmentType => _value;
+  Alignment selectedType;
+//  int get alignmentType => _value;
+  List<Alignment> types = <Alignment>[const Alignment('Global Alignment', 'global'), const Alignment('Local Alignment', 'local')];
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +58,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         onPressed: () {
-          print(key.currentState.alignmentType);
+          print(selectedType.name);
           Navigator.push(context, new MaterialPageRoute(
-            builder: (BuildContext context) => new LearnPage(seqAlgorithm: '', matrixSize: 5)
+            builder: (BuildContext context) => new LearnPage(seqAlgorithm: selectedType.name, matrixSize: 5)
           ));
         },
-//        onPressed: () => Navigator.of(context).pushNamed('/learn')
     );
 
     RaisedButton solveButton = new RaisedButton(
@@ -70,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       onPressed: () {
         Navigator.push(context, new MaterialPageRoute(
-            builder: (BuildContext context) => new SolvePageDetails(seqAlgorithm: 'Global', matrixSize: 5)
+            builder: (BuildContext context) => new SolvePageDetails(seqAlgorithm: selectedType.name, matrixSize: 5)
         ));
       },
     );
@@ -79,32 +85,34 @@ class _MyHomePageState extends State<MyHomePage> {
         data: Theme.of(context).copyWith(
           canvasColor: Colors.grey.shade200,
         ),
-        child: new DropdownButton(
-          value: _value,
-          items: <DropdownMenuItem<int>>[
-            new DropdownMenuItem(
-              child: new Text('Local Alignment',
-                style: new TextStyle(
-                fontSize: 25.0,
-                fontWeight: FontWeight.w400,
-                color: Colors.blue,
-                ),
-              ),
-              value: 42,
+        child: new DropdownButton<Alignment>(
+          hint: new Text("Select an alignment type",
+            style: new TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w400,
+              color: Colors.blue,
             ),
-            new DropdownMenuItem(
-              child: new Text('Global Alignment',
+          ),
+          value: selectedType,
+          onChanged: (Alignment newValue) {
+            setState(() {
+              selectedType = newValue;
+            });
+          },
+          items: types.map((Alignment type) {
+            return new DropdownMenuItem<Alignment>(
+              value: type,
+              child: new Text(
+                type.title,
                 style: new TextStyle(
-                  fontSize: 25.0,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w400,
                   color: Colors.blue,
                 ),
               ),
-              value: 1,
-            ),
-          ],
-            onChanged: (newValue) =>
-                setState(() => _value = newValue)),
+            );
+          }).toList(),
+        ),
         );
 
     Image image = new Image.asset(
