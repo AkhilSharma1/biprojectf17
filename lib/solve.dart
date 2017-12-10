@@ -1,4 +1,5 @@
 import 'package:biproject/algorithms/global_alignment.dart';
+import 'package:biproject/algorithms/local_alignment.dart';
 import 'package:biproject/algorithms/matrix.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
 import 'package:biproject/algorithms/similarity_matrix.dart';
@@ -314,7 +315,8 @@ class SolvePageDetails extends StatelessWidget {
           ),
           new Container(
             margin: const EdgeInsets.only(top: 100.0),
-            child: new MatrixSectionSolve(new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB"), "AB", "CB"),
+            child: new MatrixSectionSolve(seqAlgorithm == 'global' ? new GlobalAlignment(-1, new SimilarityMatrix(), "AB", "CB") :
+            new LocalAlignment(-1, new SimilarityMatrix(), "AB", "CB")  , "AB", "CB"),
           ),
         ],
       ),

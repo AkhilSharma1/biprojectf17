@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:biproject/algorithms/global_alignment.dart';
+import 'package:biproject/algorithms/local_alignment.dart';
 import 'package:biproject/algorithms/matrix.dart';
 import 'package:biproject/algorithms/models/cell.dart';
 import 'package:biproject/algorithms/seq_alignment.dart';
@@ -342,8 +343,8 @@ class LearnPage extends StatelessWidget {
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          new MatrixSectionLearn(
-              new GlobalAlignment(-1, new SimilarityMatrix(), "ABAB", "CBAA"),
+          new MatrixSectionLearn( seqAlgorithm == 'global' ?
+              new GlobalAlignment(-1, new SimilarityMatrix(), "ABAB", "CBAA") : new LocalAlignment(-1, new SimilarityMatrix(), "ABAB", "CBAA"),
               "ABAB",
               "CBAA"),
         ],
